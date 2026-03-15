@@ -1,36 +1,33 @@
-# 📝 Notes API – FastAPI Backend Project
+# 📝 Notes API – FastAPI + SQLite Backend
 
-A simple RESTful Notes API built using **FastAPI** to understand backend fundamentals like:
+A RESTful Notes API built using **FastAPI + SQLAlchemy + SQLite** to understand real backend architecture and database integration.
 
-* Path Parameters
-* Query Parameters
-* Request Body Handling
-* Pydantic Validation
-* CRUD Operations
-* Automatic API Documentation (Swagger)
-
-This project is part of my journey toward becoming a **GenAI Backend Developer**.
+This project is part of my journey toward becoming a **GenAI Full Stack Developer**.
 
 ---
 
 ## 🚀 Features
 
-* ✅ Create Notes
-* ✅ Get All Notes
-* ✅ Get Note by ID
-* ✅ Search Notes using Query Params
-* ✅ Update Notes
-* ✅ Delete Notes
-* ✅ Automatic Validation using Pydantic
-* ✅ Interactive Swagger Docs
+- ✅ Create Notes  
+- ✅ Get All Notes  
+- ✅ Get Note by ID  
+- ✅ Search Notes using Query Params  
+- ✅ Update Notes  
+- ✅ Delete Notes  
+- ✅ Persistent SQLite Database  
+- ✅ SQLAlchemy ORM Integration  
+- ✅ Automatic Validation using Pydantic  
+- ✅ Interactive Swagger Docs  
 
 ---
 
 ## 🛠 Tech Stack
 
-* Python 3.10+
-* FastAPI
-* Pydantic
+- Python 3.10+  
+- FastAPI  
+- Pydantic  
+- SQLAlchemy  
+- SQLite  
 
 ---
 
@@ -41,7 +38,14 @@ notes-api/
 │── main.py
 │── requirements.txt
 │── README.md
-│── .venv/
+│
+└── app/
+    ├── database.py
+    ├── models.py
+    ├── schemas.py
+    │
+    └── routes/
+        └── notes.py
 ```
 
 ---
@@ -92,6 +96,14 @@ appears in your terminal prompt.
 pip install -r requirements.txt
 ```
 
+Make sure your `requirements.txt` includes:
+
+```
+fastapi
+sqlalchemy
+pydantic
+```
+
 ---
 
 ## 5️⃣ Run the Development Server
@@ -128,38 +140,63 @@ deactivate
 
 ---
 
+# 🗄 Database Information
+
+- Uses **SQLite**
+- Database file: `notes.db`
+- Tables are automatically created using SQLAlchemy ORM
+
+This means:
+
+❌ Data is NOT temporary anymore  
+✅ Data persists even after server restart  
+
+This is important for building production-ready applications and AI systems later.
+
+---
+
 # 📌 API Endpoints
 
 ### 🔹 GET `/notes`
 
 Returns all notes.
 
-### 🔹 GET `/notes/{note_id}`
+---
+
+### 🔹 GET `/notes/find/{note_id}`
 
 Returns a single note by ID.
 
-### 🔹 GET `/search?keyword=python`
+---
+
+### 🔹 GET `/notes/search?keyword=python`
 
 Search notes by keyword.
 
-### 🔹 POST `/notes`
+---
+
+### 🔹 POST `/notes/create`
 
 Create a new note.
 
-Request Body:
+Example Request Body:
 
 ```json
 {
-  "title": "Learn FastAPI",
-  "content": "FastAPI is powerful"
+  "title": "My Note",
+  "content": "Some content"
 }
 ```
 
-### 🔹 PUT `/notes/{note_id}`
+---
+
+### 🔹 PUT `/notes/update/{note_id}`
 
 Update an existing note.
 
-### 🔹 DELETE `/notes/{note_id}`
+---
+
+### 🔹 DELETE `/notes/delete/{note_id}`
 
 Delete a note by ID.
 
@@ -167,22 +204,24 @@ Delete a note by ID.
 
 # 🧠 What I Learned
 
-* FastAPI automatic validation using type hints
-* Pydantic data modeling
-* CRUD API design
-* HTTP methods (GET, POST, PUT, DELETE)
-* API testing using Swagger UI
-* Structuring backend projects professionally
+- FastAPI routing & modular structure  
+- Path & Query Parameters  
+- Pydantic data validation  
+- SQLAlchemy ORM basics  
+- Persistent database vs in-memory storage  
+- CRUD API design  
+- Dependency injection (DB sessions)  
+- Structuring backend projects professionally  
 
 ---
 
 # 🔥 Future Improvements
 
-* Add PostgreSQL database
-* Add JWT Authentication
-* Add User-based Notes
-* Integrate OpenAI API for Note Summarization
-* Convert into a RAG-based AI Notes Assistant
+- Add JWT Authentication  
+- Add User-based Notes (Foreign Key relationships)  
+- Switch to PostgreSQL  
+- Integrate OpenAI API for Note Summarization  
+- Convert into a RAG-based AI Notes Assistant  
 
 ---
 
@@ -190,19 +229,18 @@ Delete a note by ID.
 
 This project builds the foundation required for:
 
-* AI-powered applications
-* Backend for GenAI tools
-* Production-ready API design
-* Backend projects
+- AI-powered backend applications  
+- GenAI tools  
+- Production-ready API design  
+- Backend freelancing & job roles  
 
 ---
 
 ## 👨‍💻 Author
 
-Arshdeep Singh
-Aspiring GenAI Backend Developer 🚀
+Arshdeep Singh  
+Aspiring GenAI Full Stack Developer 🚀  
 
 ---
 
 ⭐ If you found this helpful, feel free to star the repo!
-
