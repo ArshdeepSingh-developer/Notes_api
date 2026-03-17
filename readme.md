@@ -1,6 +1,6 @@
 # 📝 Notes API – FastAPI + SQLite Backend
 
-A RESTful Notes API built using **FastAPI + SQLAlchemy + SQLite** to understand real backend architecture and database integration.
+A RESTful Notes API built using **FastAPI + SQLAlchemy (SQLite) + JWT Authentication (python-jose)+ Password Hashing (passlib + bcrypt)** to understand real backend architecture and database integration.
 
 This project is part of my journey toward becoming a **GenAI Full Stack Developer**.
 
@@ -18,7 +18,11 @@ This project is part of my journey toward becoming a **GenAI Full Stack Develope
 - ✅ SQLAlchemy ORM Integration  
 - ✅ Automatic Validation using Pydantic  
 - ✅ Interactive Swagger Docs  
-
+- ✅ User Registration
+- ✅ User Login (JWT Authentication)
+- ✅ Password Hashing using bcrypt
+- ✅ Protected Routes using OAuth2
+- ✅ User-specific Notes (Multi-user support)
 ---
 
 ## 🛠 Tech Stack
@@ -38,14 +42,15 @@ notes-api/
 │── main.py
 │── requirements.txt
 │── README.md
-│
 └── app/
+    ├── config.py
     ├── database.py
     ├── models.py
     ├── schemas.py
-    │
+    ├── auth.py
     └── routes/
-        └── notes.py
+        ├── notes.py
+        └── users.py
 ```
 
 ---
@@ -157,50 +162,46 @@ This is important for building production-ready applications and AI systems late
 
 # 📌 API Endpoints
 
+## 🔐 Authentication
+
+### 🔹 POST `/register`
+Register a new user.
+
+### 🔹 POST `/login`
+Login user and receive JWT access token.
+
+---
+
+## 📝 Notes (Protected Routes – Requires Authorization)
+
 ### 🔹 GET `/notes`
+Get all notes of logged-in user.
 
-Returns all notes.
-
----
-
-### 🔹 GET `/notes/find/{note_id}`
-
-Returns a single note by ID.
-
----
+### 🔹 GET `/notes/{note_id}`
+Get specific note by ID.
 
 ### 🔹 GET `/notes/search?keyword=python`
+Search notes by keyword (title-based).
 
-Search notes by keyword.
-
----
-
-### 🔹 POST `/notes/create`
-
+### 🔹 POST `/notes`
 Create a new note.
 
-Example Request Body:
+### 🔹 PUT `/notes/{note_id}`
+Update a note.
 
-```json
-{
-  "title": "My Note",
-  "content": "Some content"
-}
-```
+### 🔹 DELETE `/notes/{note_id}`
+Delete a note.
 
----
+# 🔑 Authentication Flow
 
-### 🔹 PUT `/notes/update/{note_id}`
+1. Register a user using `/register`
+2. Login using `/login`
+3. Receive JWT access token
+4. Click **Authorize** button in Swagger
+5. Enter username and password
+6. Access protected routes
 
-Update an existing note.
-
----
-
-### 🔹 DELETE `/notes/delete/{note_id}`
-
-Delete a note by ID.
-
----
+All notes are user-specific and secured using JWT.
 
 # 🧠 What I Learned
 
@@ -212,6 +213,11 @@ Delete a note by ID.
 - CRUD API design  
 - Dependency injection (DB sessions)  
 - Structuring backend projects professionally  
+- JWT-based authentication
+- OAuth2 password flow
+- Password hashing with bcrypt
+- User-based data protection
+- Securing database queries per user
 
 ---
 
