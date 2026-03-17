@@ -1,44 +1,23 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Optional
 from sqlalchemy.orm import Session
-from app.database import SessionLocal
-from app import models, schemas
+from app.auth.auth import get_current_user
+from app.core.exception import not_found_exception
+from app.db.database import SessionLocal, get_db
+from app.schema import note as schemas
 from jose import jwt, JWTError
 from fastapi.security import OAuth2PasswordBearer
-from app.config import SECRET_KEY, ALGORITHM
+from app.core.config import SECRET_KEY, ALGORITHM
+from app.db import models
 
 router = APIRouter(prefix="/api/v1/notes", tags=["notes"])
 
-oauth2_schema = OAuth2PasswordBearer(tokenUrl="/login")
-
-# Dependency to get DB session
-def get_db():
-    db =SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-def get_current_user(token: str = Depends(oauth2_schema)):
-
-    try:
-        # Decode JWT token
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-
-        user_id: int = payload.get("user_id")
-
-        if user_id is None:
-            raise HTTPException(status_code=401, detail="Invalid token")
-
-        return user_id
-
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+oauth2_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 
 
-@router.post("/create", response_model=schemas.NoteResponse)
+
+@router.post("/create", response_model=schemas.NoteResponse, status_code= status.HTTP_201_CREATED)
 def create_note(
     note: schemas.NoteCreate,
     db: Session=Depends(get_db),
@@ -52,27 +31,7 @@ def create_note(
 
     return db_note
 
-@router.get("/",response_model=list[schemas.NoteResponse])
-def get_notes(
-    db: Session = Depends(get_db),
-    user_id: int = Depends(get_current_user)
-    ):
-    return db.query(models.Note).filter(models.Note.owner_id == user_id).all()
-    
-@router.get("/find/{note_id}", response_model=schemas.NoteResponse)
-def get_node_by_id(
-    note_id: int, 
-    db: Session = Depends(get_db),
-    user_id: int = Depends(get_current_user)
-    ):
-    note=db.query(models.Note).filter(models.Note.id == note_id, models.Note.owner_id == user_id).first()
-
-    if not note:
-        raise HTTPException(status_code=404, detail="Note not found")
-    
-    return note
-
-@router.get("/search", response_model=list[schemas.NoteResponse])
+@router.get("/", response_model=list[schemas.NoteResponse], status_code= status.HTTP_200_OK)
 def search_notes(
     keyword: Optional[str] = None,
     db: Session = Depends(get_db),
@@ -89,8 +48,21 @@ def search_notes(
 
     return query.all()
 
+@router.get("/{note_id}", response_model=schemas.NoteResponse, status_code=status.HTTP_200_OK)
+def get_node_by_id(
+    note_id: int, 
+    db: Session = Depends(get_db),
+    user_id: int = Depends(get_current_user)
+    ):
+    note=db.query(models.Note).filter(models.Note.id == note_id, models.Note.owner_id == user_id).first()
 
-@router.put("/{note_id}", response_model=schemas.NoteResponse)
+    if not note:
+        raise not_found_exception('note')
+    
+    return note
+
+
+@router.put("/{note_id}", response_model=schemas.NoteResponse, status_code=status.HTTP_200_OK)
 def update_note(
     note_id: int,
     updated_note: schemas.NoteUpdate,
@@ -104,7 +76,7 @@ def update_note(
     ).first()
 
     if not note:
-        raise HTTPException(status_code=404, detail="Note not found")
+        raise not_found_exception("note")
 
     note.title = updated_note.title
     note.content = updated_note.content
@@ -115,7 +87,7 @@ def update_note(
     return note
 
 
-@router.delete("/{note_id}")
+@router.delete("/{note_id}", status_code=status.HTTP_200_OK)
 def delete_note(
     note_id: int,  
     db: Session = Depends(get_db),
@@ -128,7 +100,7 @@ def delete_note(
     ).first()
 
     if not note:
-        raise HTTPException(status_code=404, detail="Note not found")
+        raise not_found_exception('note')
 
     db.delete(note)
     db.commit()

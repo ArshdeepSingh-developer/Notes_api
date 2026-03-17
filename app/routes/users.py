@@ -1,23 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from app.database import SessionLocal
-from app import models, schemas
-from app.auth import hash_password, verify_password, create_access_token
+from app.core.exception import invalid_credential
+from app.core.security import create_access_token, hash_password, verify_password
+from app.db.database import SessionLocal, get_db
+from app.schema import users as schemas
+from app.db import models
 
 
 router = APIRouter(tags=["Users"])
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
-@router.post("/register")
+@router.post("/api/v1/auth/register")
 def register_user(user: schemas.UserRegister, db: Session = Depends(get_db)):
 
     existing_user = db.query(models.User).filter(models.User.email == user.email).first()
@@ -40,7 +36,7 @@ def register_user(user: schemas.UserRegister, db: Session = Depends(get_db)):
 
 
 
-@router.post("/login")
+@router.post("/api/v1/auth/login")
 def login_user(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
@@ -53,13 +49,13 @@ def login_user(
     ).first()
 
     if not db_user:
-        raise HTTPException(status_code=400, detail="Invalid credentials")
+        raise invalid_credential()
 
     if not verify_password(form_data.password, db_user.password):
-        raise HTTPException(status_code=400, detail="Invalid credentials")
+        raise invalid_credential()
 
     access_token = create_access_token(
-        data={"user_id": db_user.id}
+        data={"sub": str(db_user.id)}
     )
 
     return {
@@ -67,21 +63,3 @@ def login_user(
         "token_type": "bearer"
     }
 
-
-
-    db_user = db.query(models.User).filter(models.User.email == user.email).first()
-
-    if not db_user:
-        raise HTTPException(status_code=400, detail="Invalid credentials")
-
-    if not verify_password(user.password, db_user.password):
-        raise HTTPException(status_code=400, detail="Invalid credentials")
-
-    access_token = create_access_token(
-        data={"user_id": db_user.id}
-    )
-
-    return {
-        "access_token": access_token,
-        "token_type": "bearer"
-    }
