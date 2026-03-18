@@ -1,13 +1,14 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+from app.core.config import DATABASE_URL
 
-# SQLite database file
-DATABASE_URL = "sqlite:///./notes.db"
+
 
 # Engine = connection to database
 engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False}  # Needed only for SQLite
+    DATABASE_URL, 
+    pool_size=5, 
+    max_overflow=10
 )
 
 # SessionLocal = creates DB session instances
